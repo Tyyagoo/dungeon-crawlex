@@ -1,15 +1,19 @@
 defmodule CLI.BaseCommands do
   alias Mix.Shell.IO, as: Shell
+  alias CLI.Exceptions.InvalidOption
 
   def ask_for_index(options) do
-    options
-    |> display_options()
-    |> generate_question()
-    |> Shell.prompt()
-    |> Integer.parse()
-    |> case do
-      {index, _} -> handle_valid_integer(options, index - 1)
-      _ -> handle_invalid_integer(options)
+    try do
+      options
+      |> display_options()
+      |> generate_question()
+      |> Shell.prompt()
+      |> parse_integer!()
+      |> find_option_by_index!(options)
+    rescue
+      e in InvalidOption ->
+        display_error(e)
+        ask_for_index(options)
     end
   end
 
@@ -28,22 +32,26 @@ defmodule CLI.BaseCommands do
     "Which one? [#{options}]\n> "
   end
 
-  defp handle_valid_integer(options, index) when index >= 0 do
-    Enum.at(options, index) || handle_invalid_integer(options)
+  defp parse_integer!(maybe_integer) do
+    maybe_integer
+    |> Integer.parse()
+    |> case do
+      {number, _} -> number
+      :error -> raise InvalidOption
+    end
   end
 
-  defp handle_valid_integer(options, _) do
-    handle_invalid_integer(options)
+  defp find_option_by_index!(index, options) when index - 1 >= 0 do
+    Enum.at(options, index - 1) || raise InvalidOption
   end
 
-  defp handle_invalid_integer(options) do
-    display_invalid_option()
-    ask_for_index(options)
+  defp find_option_by_index!(_, _) do
+    raise InvalidOption
   end
 
-  defp display_invalid_option() do
+  defp display_error(error) do
     Shell.cmd("clear")
-    Shell.error("Invalid option.")
+    Shell.error(error.message)
     Process.sleep(10)
     Shell.prompt("Press Enter to try again.")
     Shell.cmd("clear")
