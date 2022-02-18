@@ -31,11 +31,22 @@ defmodule CLI.Main do
 
   defp trigger_action({room, action}, character) do
     Shell.cmd("clear")
-    room.trigger.run(character, action)
+    if room.trigger, do: room.trigger.run(character, action), else: {:none, character}
   end
 
-  defp handle_action_result({:exit, _}),
-    do: Shell.info("You found the exit. You won the game. Congratulations!")
+  defp handle_action_result({:death, _}) do
+    Shell.cmd("clear")
+    Shell.info("Unfortunately your wounds are too many to keep walking.")
+    Shell.info("You fall onto the floor without strength to carry on.")
+    Shell.info("Game over!")
+    Shell.prompt("")
+  end
 
-  defp handle_action_result({_, character}), do: crawl(character, DungeonCrawl.Room.all())
+  defp handle_action_result({:exit, _}) do
+    Shell.info("You found the exit. You won the game. Congratulations!")
+  end
+
+  defp handle_action_result({_, character}) do
+    crawl(character, DungeonCrawl.Room.all())
+  end
 end

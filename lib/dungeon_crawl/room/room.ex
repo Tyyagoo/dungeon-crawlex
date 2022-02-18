@@ -7,16 +7,22 @@ defmodule DungeonCrawl.Room do
 
   @type t :: %Room{description: String.t(), actions: list(Action.t()), trigger: Trigger}
 
-  def all(),
-    do: [
-      %Room{
-        description: "You can see the light of day. You found the exit!",
-        actions: [Action.forward()],
-        trigger: Triggers.Exit
-      },
-      %Room{
-        description: "You found a quiet place. Looks safe for a little nap.",
-        actions: [Action.forward(), Action.rest()]
-      }
-    ]
+  @exit_room %{
+    description: "You can see the light of day. You found the exit!",
+    actions: [Action.forward()],
+    trigger: Triggers.Exit
+  }
+
+  @enemy_room %{
+    description: "You can see an enemy blocking your path.",
+    actions: [Action.battle()],
+    trigger: Triggers.Enemy
+  }
+
+  @normal_room %{
+    description: "You found a quiet place. Looks safe for a little nap.",
+    actions: [Action.forward(), Action.rest()]
+  }
+
+  def all(), do: [@exit_room, @enemy_room, @normal_room] |> Enum.map(&struct(Room, &1))
 end
