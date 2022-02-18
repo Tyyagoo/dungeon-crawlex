@@ -2,7 +2,7 @@ defmodule CLI.HeroChoice do
   alias Mix.Shell.IO, as: Shell
   import CLI.BaseCommands
 
-  def start do
+  def start() do
     Shell.cmd("clear")
     Shell.info("Start by choosing your hero:")
 

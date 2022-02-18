@@ -8,7 +8,7 @@ defmodule CLI.Main do
     Shell.prompt("Press Enter to continue")
 
     HeroChoice.start()
-    DungeonCrawl.Room.all() |> crawl()
+    |> crawl(DungeonCrawl.Room.all())
   end
 
   defp welcome_message() do
@@ -17,7 +17,7 @@ defmodule CLI.Main do
     Shell.info("You need to survive and find the exit.")
   end
 
-  defp crawl(rooms) do
+  defp crawl(character, rooms) do
     Shell.info("You keep moving forward to the next room.")
     Shell.prompt("Press Enter to continue")
     Shell.cmd("clear")
@@ -25,5 +25,17 @@ defmodule CLI.Main do
     rooms
     |> Enum.random()
     |> RoomActionChoice.start()
+    |> trigger_action(character)
+    |> handle_action_result()
   end
+
+  defp trigger_action({room, action}, character) do
+    Shell.cmd("clear")
+    room.trigger.run(character, action)
+  end
+
+  defp handle_action_result({:exit, _}),
+    do: Shell.info("You found the exit. You won the game. Congratulations!")
+
+  defp handle_action_result({_, character}), do: crawl(character, DungeonCrawl.Room.all())
 end
