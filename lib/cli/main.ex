@@ -3,8 +3,8 @@ defmodule CLI.Main do
   alias CLI.{HeroChoice, RoomActionChoice}
 
   def start_game() do
+    Shell.cmd("clear")
     welcome_message()
-
     Shell.prompt("Press Enter to continue")
 
     HeroChoice.start()
