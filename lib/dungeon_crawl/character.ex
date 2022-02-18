@@ -16,4 +16,8 @@ defmodule DungeonCrawl.Character do
           attack_description: String.t(),
           damage_range: Range.t()
         }
+
+  defimpl String.Chars do
+    def to_string(character), do: character.name
+  end
 end
