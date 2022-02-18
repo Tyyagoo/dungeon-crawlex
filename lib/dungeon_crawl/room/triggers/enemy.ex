@@ -16,8 +16,9 @@ defmodule DungeonCrawl.Room.Triggers.Enemy do
     |> show_message()
     |> step()
     |> case do
-      %Character{hit_points: 0} -> {:death, nil}
-      updated_character -> {:foward, updated_character}
+      # only the score matters when character dies
+      %Character{hit_points: 0} -> {:death, character}
+      updated -> {:forward, %Character{updated | score: updated.score + 1}}
     end
   end
 
